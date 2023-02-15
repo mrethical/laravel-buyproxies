@@ -12,14 +12,23 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        php: [8.2, 8.1]
-        laravel: [9.*]
+        os: [ubuntu-latest]
+        php: [8.2, 8.1, 8.0]
+        laravel: [10.*, 9.*, 8.*]
         stability: [prefer-lowest, prefer-stable]
         include:
+          - laravel: 10.*
+            testbench: 8.*
+            carbon: ^2.63
           - laravel: 9.*
             testbench: 7.*
             carbon: ^2.63
+          - laravel: 8.*
+            testbench: ^6.23
+            carbon: ^2.63
+        exclude:
+          - laravel: 10.*
+            php: 8.0
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -48,4 +57,7 @@ jobs:
         run: composer show -D
 
       - name: Execute tests
+        env:
+          BUYPROXIES_PID: ${{ secrets.BUYPROXIES_PID }}
+          BUYPROXIES_KEY: ${{ secrets.BUYPROXIES_KEY }}
         run: vendor/bin/pest
